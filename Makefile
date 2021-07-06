@@ -13,3 +13,6 @@ demo_callers.csv: build
 
 %.dot: %.csv
 	./csv2dot $< > $@
+
+%.txt: %.csv
+	./csv2txt $< > $@
