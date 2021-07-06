@@ -13,6 +13,7 @@ use SimpleXMLElement;
 
 class Plugin implements PluginEntryPointInterface, AfterFunctionCallAnalysisInterface, AfterMethodCallAnalysisInterface
 {
+    public const FILENAME = "./callers.csv";
     /** @return void */
     public function __invoke(RegistrationInterface $psalm, ?SimpleXMLElement $config = null): void
     {
@@ -44,7 +45,7 @@ class Plugin implements PluginEntryPointInterface, AfterFunctionCallAnalysisInte
     }
 
     public static function afterFunctionCallAnalysis(AfterFunctionCallAnalysisEvent $event): void {
-        $file = fopen("./callers.csv", "a");
+        $file = fopen(self::FILENAME, "a");
         $call = $event->getFunctionId();
         $madeBy = self::getCaller($event->getContext());
         fputcsv($file, [$madeBy, $call]);
@@ -52,7 +53,7 @@ class Plugin implements PluginEntryPointInterface, AfterFunctionCallAnalysisInte
     }
 
     public static function afterMethodCallAnalysis(AfterMethodCallAnalysisEvent $event): void {
-        $file = fopen("./callers.csv", "a");
+        $file = fopen(self::FILENAME, "a");
         $call = $event->getMethodId();
         $madeBy = self::getCaller($event->getContext());
         fputcsv($file, [$madeBy, $call]);
