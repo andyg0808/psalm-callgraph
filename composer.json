@@ -1,16 +1,15 @@
 {
-    "name": "weirdan/psalm-plugin-skeleton",
-    "description": "Template to create psalm-plugin projects from",
+    "name": "andyg0808/psalm-callgraph",
+    "description": "Psalm plugin to dump the callgraph of a codebase",
     "type": "psalm-plugin",
     "license": "MIT",
     "authors": [
         {
-            "name": "Bruce Weirdan",
-            "email": "weirdan@gmail.com"
+            "name": "Andrew Gilbert"
         }
     ],
     "require": {
-        "vimeo/psalm": "dev-master"
+        "vimeo/psalm": "^4.8"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5.5",
@@ -22,19 +21,19 @@
     },
     "extra": {
         "psalm": {
-            "pluginClass": "Weirdan\\PsalmPluginSkeleton\\Plugin"
+            "pluginClass": "Andyg0808\\PsalmCallgraph\\Plugin"
         }
     },
     "autoload": {
         "psr-4": {
-            "Weirdan\\PsalmPluginSkeleton\\": [
+            "Andyg0808\\PsalmCallgraph\\": [
                 "."
             ]
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Weirdan\\PsalmPluginSkeleton\\Tests\\": [
+            "Andyg0808\\PsalmCallgraph\\Tests\\": [
                 "tests/_support",
                 "tests"
             ]
