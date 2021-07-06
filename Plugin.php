@@ -2,15 +2,19 @@
 
 namespace Weirdan\PsalmPluginSkeleton;
 
-use SimpleXMLElement;
+use Psalm\Plugin\EventHandler\AfterFunctionCallAnalysisInterface;
+use Psalm\Plugin\EventHandler\Event\AfterFunctionCallAnalysisEvent;
 use Psalm\Plugin\PluginEntryPointInterface;
 use Psalm\Plugin\RegistrationInterface;
+use SimpleXMLElement;
 
-class Plugin implements PluginEntryPointInterface
+class Plugin implements PluginEntryPointInterface, AfterFunctionCallAnalysisInterface
 {
     /** @return void */
     public function __invoke(RegistrationInterface $psalm, ?SimpleXMLElement $config = null): void
     {
+        $file = fopen("./callers.csv", "w");
+        fclose($file);
         // This is plugin entry point. You can initialize things you need here,
         // and hook them into psalm using RegistrationInterface
         //
@@ -34,5 +38,13 @@ class Plugin implements PluginEntryPointInterface
     private function getStubFiles(): array
     {
         return glob(__DIR__ . '/stubs/*.phpstub') ?: [];
+    }
+
+    public static function afterFunctionCallAnalysis(AfterFunctionCallAnalysisEvent $event): void {
+        $file = fopen("./callers.csv", "a");
+        $call = $event->getFunctionId();
+        $madeBy = $event->getContext()->calling_method_id;
+        fputcsv($file, [$madeBy, $call]);
+        fclose($file);
     }
 }
