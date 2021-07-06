@@ -4,11 +4,14 @@ namespace Andyg0808\PsalmCallgraph;
 
 use Psalm\Plugin\EventHandler\AfterFunctionCallAnalysisInterface;
 use Psalm\Plugin\EventHandler\Event\AfterFunctionCallAnalysisEvent;
+use Psalm\Plugin\EventHandler\AfterMethodCallAnalysisInterface;
+use Psalm\Plugin\EventHandler\Event\AfterMethodCallAnalysisEvent;
 use Psalm\Plugin\PluginEntryPointInterface;
 use Psalm\Plugin\RegistrationInterface;
+use Psalm\Context;
 use SimpleXMLElement;
 
-class Plugin implements PluginEntryPointInterface, AfterFunctionCallAnalysisInterface
+class Plugin implements PluginEntryPointInterface, AfterFunctionCallAnalysisInterface, AfterMethodCallAnalysisInterface
 {
     /** @return void */
     public function __invoke(RegistrationInterface $psalm, ?SimpleXMLElement $config = null): void
@@ -43,8 +46,20 @@ class Plugin implements PluginEntryPointInterface, AfterFunctionCallAnalysisInte
     public static function afterFunctionCallAnalysis(AfterFunctionCallAnalysisEvent $event): void {
         $file = fopen("./callers.csv", "a");
         $call = $event->getFunctionId();
-        $madeBy = $event->getContext()->calling_method_id;
+        $madeBy = self::getCaller($event->getContext());
         fputcsv($file, [$madeBy, $call]);
         fclose($file);
+    }
+
+    public static function afterMethodCallAnalysis(AfterMethodCallAnalysisEvent $event): void {
+        $file = fopen("./callers.csv", "a");
+        $call = $event->getMethodId();
+        $madeBy = self::getCaller($event->getContext());
+        fputcsv($file, [$madeBy, $call]);
+        fclose($file);
+    }
+
+    private static function getCaller(Context $context): string {
+        return $context->calling_method_id ?: $context->calling_function_id ?: "";
     }
 }
