@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""
+Usage: csv2dot <filename>
+"""
+
+from docopt import docopt
+import csv
+from dataclasses import dataclass
+import base64
+import html
+
+
+@dataclass
+class Mapping:
+    caller: str
+    callee: str
+
+def main(opts):
+    print_header()
+    mappings = read_csv(opts['<filename>'])
+    write_dot(mappings)
+    print_footer()
+
+def print_header():
+    print("digraph {")
+
+def print_footer():
+    print("}")
+
+def read_csv(filename):
+    with open(filename) as fi:
+        for mapping in csv.reader(fi):
+            yield Mapping(*mapping)
+
+def get_node_name(name):
+    return "_" + bytes(name, "utf-8").hex()
+
+def write_dot(mappings):
+    mappings = list(mappings)
+    methods = {m.caller for m in mappings} | {m.callee for m in mappings}
+    for method in methods:
+        node = get_node_name(method)
+        label = html.escape(method, quote=True)
+        print(f"{node}[label=<{label}>]")
+    for mapping in mappings:
+        caller = get_node_name(mapping.caller)
+        callee = get_node_name(mapping.callee)
+        print(f"{caller} -> {callee}")
+
+
+opts = docopt(__doc__)
+main(opts)
