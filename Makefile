@@ -2,7 +2,6 @@
 show: callers.dot
 	dot -Tx11 $<
 
-.PHONY: build
 build: Plugin.php composer.json composer.lock
 	docker build -t callgraph .
 
