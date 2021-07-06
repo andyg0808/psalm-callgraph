@@ -3,11 +3,15 @@
 Usage: csv2dot <filename>
 """
 
-from docopt import docopt
-import csv
-from dataclasses import dataclass
 import base64
+import csv
 import html
+import logging
+from dataclasses import dataclass
+
+from docopt import docopt
+
+Log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -15,38 +19,48 @@ class Mapping:
     caller: str
     callee: str
 
+
 def main(opts):
     print_header()
-    mappings = read_csv(opts['<filename>'])
+    mappings = read_csv(opts["<filename>"])
     write_dot(mappings)
     print_footer()
+
 
 def print_header():
     print("digraph {")
 
+
 def print_footer():
     print("}")
+
 
 def read_csv(filename):
     with open(filename) as fi:
         for mapping in csv.reader(fi):
+            assert mapping[0] != ""
             yield Mapping(*mapping)
+
 
 def get_node_name(name):
     return "_" + bytes(name, "utf-8").hex()
+
+def get_mapping_lines(mappings):
+    for mapping in mappings:
+        caller = get_node_name(mapping.caller)
+        callee = get_node_name(mapping.callee)
+        yield f"{caller} -> {callee}"
+
 
 def write_dot(mappings):
     mappings = list(mappings)
     methods = {m.caller for m in mappings} | {m.callee for m in mappings}
     for method in methods:
         node = get_node_name(method)
-        label = html.escape(method, quote=True)
+        label = html.escape(method, quote=True).replace('\\', '\\\\')
         print(f"{node}[label=<{label}>]")
-    for mapping in mappings:
-        caller = get_node_name(mapping.caller)
-        callee = get_node_name(mapping.callee)
-        print(f"{caller} -> {callee}")
-
+    for mapping in set(get_mapping_lines(mappings)):
+        print(mapping)
 
 opts = docopt(__doc__)
 main(opts)
