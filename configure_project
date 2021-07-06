@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+if ! [[ -d vendor ]]; then
+  docker run --rm -v$(pwd):/app composer install --ignore-platform-reqs
+fi
+
+if ! [[ -f psalm.xml ]]; then
+  docker run --rm -v$(pwd):/mnt --entrypoint=/app/vendor/bin/psalm callgraph --init . 8
+fi
+
+docker run --rm -v$(pwd):/mnt --entrypoint=/app/vendor/bin/psalm callgraph --threads=1 --set-baseline=baseline.xml

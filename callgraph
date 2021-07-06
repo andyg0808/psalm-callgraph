@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+target="$(realpath -e "$1")"
+shift
+output="$(readlink -f ./callers.csv)"
+touch "$output"
+docker run --rm -v"$target":/mnt -v$output:/mnt/callers.csv callgraph
