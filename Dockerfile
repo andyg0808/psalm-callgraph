@@ -7,4 +7,5 @@ FROM php as run
 WORKDIR /app
 COPY --from=build /app/vendor ./vendor
 COPY . .
-ENTRYPOINT ["php", "vendor/bin/psalm"]
+WORKDIR /mnt
+ENTRYPOINT ["/app/vendor/bin/psalm", "--plugin=/app/Plugin.php"]
